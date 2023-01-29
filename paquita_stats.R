@@ -88,3 +88,9 @@ plt3 <- ggplot(stats) +
     ggtitle("Número de publicaciones por usuario activo")
 plot(plt3)
 ggsave("/tmp/paquita_stats3.png", dpi = 300)
+
+plt4 <- ggplot(stats) +
+    geom_line(aes(x = dates, y = publicaciones_nuevas)) +
+    xlab("Fecha") +
+    ggtitle("Nuevas publicaciones")
+plot(plt4)
