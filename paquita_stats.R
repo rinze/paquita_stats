@@ -1,6 +1,6 @@
 library(dplyr)
+library(tidyr)
 library(ggplot2)
-library(httr)
 library(jsonlite)
 library(logger)
 library(lubridate)
@@ -60,6 +60,31 @@ parse_toots <- function(toot_df) {
 toots <- get_all_toots(URL)
 stats <- parse_toots(toots)
 
-plt1 <- ggplot(stats)+ 
-        geom_line(aes(x = dates, y = usuarios_activos))
+plt1 <- ggplot(gather(stats, key, value, c(usuarios_totales, usuarios_activos))) + 
+    geom_line(aes(x = dates, y = value, color = key)) +
+    scale_color_brewer(palette = "Set1", name = NULL,
+        labels = c("Usuarios activos", "Usuarios totales")) +
+    scale_y_continuous(limits = c(0, NA)) +
+    theme(legend.position = "top") +
+    ylab("Número de usuarios") +
+    xlab("Fecha") +
+    ggtitle("Número de usuarios (totales y activos) en paquita.masto.host", 
+        sub = "Un usuario activo es aquel que ha entrado en los últimos 30 días")
 plot(plt1)
+ggsave("/tmp/paquita_stats1.png", dpi = 300)
+
+plt2 <- ggplot(stats) +
+    geom_line(aes(x = dates, y = publicaciones)) +
+    ylab("Toots") +
+    xlab("Fecha") +
+    ggtitle("Número de publicaciones")
+plot(plt2)
+ggsave("/tmp/paquita_stats2.png", dpi = 300)
+
+plt3 <- ggplot(stats) +
+    geom_line(aes(x = dates, y = publicaciones_nuevas / usuarios_activos)) +
+    ylab("Toots / usuario activo") +
+    xlab("Fecha") +
+    ggtitle("Número de publicaciones por usuario activo")
+plot(plt3)
+ggsave("/tmp/paquita_stats3.png", dpi = 300)
