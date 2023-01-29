@@ -94,3 +94,4 @@ plt4 <- ggplot(stats) +
     xlab("Fecha") +
     ggtitle("Nuevas publicaciones")
 plot(plt4)
+ggsave("/tmp/paquita_stats4.png", dpi = 300)
