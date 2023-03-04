@@ -18,7 +18,15 @@ get_page <- function(url) {
     dd <- fromJSON(url)
     log_info("Read {url}")
     log_info("Read {nrow(dd$orderedItems)} toots")
-    return(list(toots = dd$orderedItems, next_page = dd$`next`))
+    toots <- dd$orderedItems[dd$orderedItems$type != "Announce", ]
+    if (class(toots$object) == "data.frame") {
+        toot_data <- data.frame(published = toots$published,
+            content = toots$object$content)
+    } else {
+        toot_data <- data.frame(published = toots$published, 
+            content = sapply(toots$object, function(x) x$content))
+    }
+    return(list(toots = toot_data, next_page = dd$`next`))
 }
 
 get_all_toots <- function(url) {
@@ -47,7 +55,7 @@ get_stats_from_toot <- function(toot_text) {
 
 parse_toots <- function(toot_df) {
     dates <- parse_date_time(toots$published, "%Y-%m-%d %H:%M:%S")
-    stats <- bind_rows(lapply(toot_df$object$content, get_stats_from_toot))
+    stats <- bind_rows(lapply(toot_df$content, get_stats_from_toot))
     stats$dates <- dates
     # Add a few extra fields
     stats <- stats %>%
